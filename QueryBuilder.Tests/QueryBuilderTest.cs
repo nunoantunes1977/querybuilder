@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using SqlKata.Compilers;
 using Xunit;
 
@@ -20,9 +18,10 @@ namespace SqlKata.Tests
                 _pg.Compile(q.Clone()).ToString(),
             };
         }
+
         public QueryBuilderTest()
         {
-            _sqlsrv = new SqlServerCompiler();
+            _sqlsrv = new SqlServerCompiler(SqlServerVersion.SQL2016);
             _mysql = new MySqlCompiler();
             _pg = new PostgresCompiler();
         }
@@ -64,12 +63,20 @@ namespace SqlKata.Tests
         [Fact]
         public void Offset()
         {
-            var q = new Query().From("users").Offset(10);
+            var q = new Query().From("users").OrderBy("id").Offset(10);
             var c = Compile(q);
 
-            Assert.Equal("SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS [row_num] FROM [users]) WHERE [row_num] >= 11", c[0]);
-            Assert.Equal("SELECT * FROM `users` LIMIT 18446744073709551615 OFFSET 10", c[1]);
-            Assert.Equal("SELECT * FROM \"users\" OFFSET 10", c[2]);
+            if (_sqlsrv.EngineVersion < (int)SqlServerVersion.SQL2012)
+            {
+                Assert.Equal("SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS [row_num] FROM [users] ORDER BY id) AS [q] WHERE [row_num] >= 11", c[0]);
+            }
+            else
+            {
+                Assert.Equal("SELECT * FROM [users] ORDER BY [id] OFFSET 10 ROWS", c[0]);
+            }
+
+            Assert.Equal("SELECT * FROM `users` ORDER BY `id` LIMIT 18446744073709551615 OFFSET 10", c[1]);
+            Assert.Equal("SELECT * FROM \"users\" ORDER BY \"id\" OFFSET 10", c[2]);
         }
 
         [Theory()]
@@ -81,10 +88,17 @@ namespace SqlKata.Tests
         [InlineData(1000000)]
         public void OffsetSqlServer_Should_Be_Incremented_By_One(int offset)
         {
-            var q = new Query().From("users").Offset(offset);
+            var q = new Query().From("users").OrderBy("id").Offset(offset);
             var c = _sqlsrv.Compile(q);
 
-            Assert.Equal("SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS [row_num] FROM [users]) WHERE [row_num] >= " + (offset + 1), c.ToString());
+            if (_sqlsrv.EngineVersion < (int)SqlServerVersion.SQL2012)
+            {
+                Assert.Equal("SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY id) AS [row_num] FROM [users]) AS [q] WHERE [row_num] >= " + (offset + 1), c.ToString());
+            }
+            else
+            {
+                Assert.Equal("SELECT * FROM [users] ORDER BY [id] OFFSET " + offset + " ROWS", c.ToString());
+            }
         }
 
         [Theory()]
@@ -162,7 +176,6 @@ namespace SqlKata.Tests
             Assert.Equal("WITH \"series\" AS (SELECT * FROM \"table\" WHERE postgres = true) SELECT * FROM \"series\"", c[2]);
         }
 
-
         [Fact]
         public void SqlServerTop()
         {
@@ -177,16 +190,42 @@ namespace SqlKata.Tests
             .With("old_cards", new Query("all_cars").Where("year", "<", 2000))
             .Insert(
                     new[] { "name", "model", "year" },
-                    new Query("old_cars").Where("price", ">", 100).ForPage(2, 10)
+                    new Query("old_cars").Where("price", ">", 100).OrderBy("price").ForPage(2, 10)
             );
 
             var c = Compile(query);
 
-            Assert.Equal("WITH [old_cards] AS (SELECT * FROM [all_cars] WHERE [year] < 2000) INSERT INTO [expensive_cars] ([name], [model], [year]) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS [row_num] FROM [old_cars] WHERE [price] > 100) WHERE [row_num] BETWEEN 11 AND 20", c[0]);
-            
-            Assert.Equal("WITH `old_cards` AS (SELECT * FROM `all_cars` WHERE `year` < 2000) INSERT INTO `expensive_cars` (`name`, `model`, `year`) SELECT * FROM `old_cars` WHERE `price` > 100 LIMIT 10 OFFSET 10", c[1]);
-            
-            Assert.Equal("WITH \"old_cards\" AS (SELECT * FROM \"all_cars\" WHERE \"year\" < 2000) INSERT INTO \"expensive_cars\" (\"name\", \"model\", \"year\") SELECT * FROM \"old_cars\" WHERE \"price\" > 100 LIMIT 10 OFFSET 10", c[2]);
+            if (_sqlsrv.EngineVersion < (int)SqlServerVersion.SQL2012)
+            {
+                Assert.Equal("WITH [old_cards] AS (SELECT * FROM [all_cars] WHERE [year] < 2000) INSERT INTO [expensive_cars] ([name], [model], [year]) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS [row_num] FROM [old_cars] WHERE [price] > 100) AS [q] WHERE [row_num] BETWEEN 11 AND 20", c[0]);
+            }
+            else
+            {
+                Assert.Equal("WITH [old_cards] AS (SELECT * FROM [all_cars] WHERE [year] < 2000) INSERT INTO [expensive_cars] ([name], [model], [year]) SELECT * FROM [old_cars] WHERE [price] > 100 ORDER BY [price] OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY", c[0]);
+            }
+
+            Assert.Equal("WITH `old_cards` AS (SELECT * FROM `all_cars` WHERE `year` < 2000) INSERT INTO `expensive_cars` (`name`, `model`, `year`) SELECT * FROM `old_cars` WHERE `price` > 100 ORDER BY `price` LIMIT 10 OFFSET 10", c[1]);
+
+            Assert.Equal("WITH \"old_cards\" AS (SELECT * FROM \"all_cars\" WHERE \"year\" < 2000) INSERT INTO \"expensive_cars\" (\"name\", \"model\", \"year\") SELECT * FROM \"old_cars\" WHERE \"price\" > 100 ORDER BY \"price\" LIMIT 10 OFFSET 10", c[2]);
+        }
+
+        [Fact]
+        public void ForPageWithOrdering()
+        {
+            var q = new Query().From("users").OrderBy("name").ForPage(3, 10);
+            var c = Compile(q);
+
+            if (_sqlsrv.EngineVersion < (int)SqlServerVersion.SQL2012)
+            {
+                Assert.Equal(c[0], "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY [name]) AS [row_num] FROM [users]) AS [q] WHERE [row_num] BETWEEN 21 AND 30");
+            }
+            else
+            {
+                Assert.Equal(c[0], "SELECT * FROM [users] ORDER BY [name] OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY");
+            }
+
+            Assert.Equal(c[1], "SELECT * FROM `users` ORDER BY `name` LIMIT 10 OFFSET 20");
+            Assert.Equal(c[2], "SELECT * FROM \"users\" ORDER BY \"name\" LIMIT 10 OFFSET 20");
         }
     }
 }

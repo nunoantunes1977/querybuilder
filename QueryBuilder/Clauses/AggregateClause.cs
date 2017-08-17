@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace SqlKata
@@ -13,6 +12,7 @@ namespace SqlKata
             return new AggregateClause
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Type = Type,
                 Columns = new List<string>(Columns),
                 Component = Component,

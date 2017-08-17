@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using SqlKata.Compilers;
 
 namespace SqlKata
 {
@@ -318,6 +316,5 @@ namespace SqlKata
         {
             return new Query().SetEngineScope(EngineScope);
         }
-
     }
 }

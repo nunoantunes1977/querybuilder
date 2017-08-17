@@ -12,6 +12,7 @@ namespace SqlKata
         {
             return new Raw(value);
         }
+
         public static bool IsNumber(object value)
         {
             return value is sbyte
@@ -65,9 +66,8 @@ namespace SqlKata
         {
             while (toCheck != null && toCheck != typeof(object))
             {
-
                 var isGeneric = toCheck
-#if FEATURE_TYPE_INFO                
+#if FEATURE_TYPE_INFO
             .GetTypeInfo()
 #endif
             .IsGenericType;
@@ -80,7 +80,7 @@ namespace SqlKata
                 }
 
                 toCheck = toCheck
-#if FEATURE_TYPE_INFO                
+#if FEATURE_TYPE_INFO
             .GetTypeInfo()
 #endif
                     .BaseType;
@@ -130,6 +130,5 @@ namespace SqlKata
 
             return string.Join("", newStr);
         }
-
     }
 }

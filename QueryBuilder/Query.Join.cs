@@ -60,6 +60,7 @@ namespace SqlKata
         {
             return DeepJoin(expression, sourceKeySuffix, targetKey, "left");
         }
+
         public Query LeftDeepJoin(
             string expression,
             Func<string, string> sourceKeyGenerator,
@@ -170,6 +171,5 @@ namespace SqlKata
         {
             return Join(j => j.JoinWith(table).AsCross());
         }
-
     }
 }

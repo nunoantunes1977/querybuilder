@@ -6,8 +6,6 @@ namespace SqlKata
 {
     public partial class Query
     {
-
-
         public Query Insert(IEnumerable<string> columns, IEnumerable<object> values)
         {
             if (columns.Count() != values.Count())
@@ -28,7 +26,6 @@ namespace SqlKata
 
         public Query Insert(Dictionary<string, object> data)
         {
-
             Method = "insert";
 
             Clear("insert").Add("insert", new InsertClause
@@ -48,7 +45,6 @@ namespace SqlKata
         /// <returns></returns>
         public Query Insert(IEnumerable<string> columns, Query query)
         {
-
             Method = "insert";
 
             Clear("insert").Add("insert", new InsertQueryClause
@@ -59,6 +55,5 @@ namespace SqlKata
 
             return this;
         }
-
     }
 }

@@ -19,6 +19,7 @@ namespace SqlKata.Compilers
             return "\"";
         }
     }
+
     public static class PostgresCompilerExtensions
     {
         public static string ENGINE_CODE = "postgres";

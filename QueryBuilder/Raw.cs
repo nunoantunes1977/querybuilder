@@ -7,6 +7,7 @@ namespace SqlKata
     {
         private readonly string _value;
         public List<object> Bindings { get; set; } = new List<object>();
+
         public string Value
         {
             get
@@ -25,6 +26,5 @@ namespace SqlKata
         {
             return _value;
         }
-
     }
 }

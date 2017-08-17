@@ -4,7 +4,6 @@ namespace SqlKata
     {
         public Query Having<T>(string column, string op, T value)
         {
-
             // If the value is "null", we will just assume the developer wants to add a
             // having null clause to the query. So, we will allow a short-cut here to
             // that method for convenience so the developer doesn't have to check.

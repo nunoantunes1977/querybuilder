@@ -40,6 +40,5 @@ namespace SqlKata
         {
             return Helper.ReplaceAll(RawSql, "?", i => RawBindings[i] + "");
         }
-
     }
 }

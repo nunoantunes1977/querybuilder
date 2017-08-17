@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SqlKata
@@ -8,8 +6,7 @@ namespace SqlKata
     {
         public Query Aggregate(string type, params string[] columns)
         {
-
-            // Clear up the following statements since they are not needed in 
+            // Clear up the following statements since they are not needed in
             // case of aggregation
 
             (GetOne("limit") as LimitOffset)?.Clear();
@@ -43,6 +40,7 @@ namespace SqlKata
         {
             return Aggregate("avg", column);
         }
+
         public Query Average(string column)
         {
             return Avg(column);

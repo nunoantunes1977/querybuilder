@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SqlKata
@@ -9,8 +7,17 @@ namespace SqlKata
         private int _limit;
         private int _offset;
 
-        public override object[] GetBindings(string engine)
+        public override object[] GetBindings(string engine, int engineVersion)
         {
+            // On SQL server 2012 offset comes before limit
+            if (engine == "sqlsrv" && engineVersion > 110 /*SQL Server 2012*/ && HasLimit() == true && HasOffset() == true)
+            {
+                return new[] { _offset, _limit }
+                    .Where(x => x > 0)
+                    .Cast<object>()
+                    .ToArray();
+            }
+
             return new[] { _limit, _offset }
                 .Where(x => x > 0)
                 .Cast<object>()
@@ -75,6 +82,7 @@ namespace SqlKata
             return new LimitOffset
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Offset = Offset,
                 Limit = Limit,
                 Component = Component,

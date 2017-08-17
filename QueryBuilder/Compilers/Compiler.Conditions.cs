@@ -5,7 +5,6 @@ namespace SqlKata.Compilers
 {
     public partial class Compiler
     {
-
         protected virtual string CompileCondition(AbstractCondition clause)
         {
             var name = clause.GetType().Name;
@@ -48,7 +47,6 @@ namespace SqlKata.Compilers
             var alias = string.IsNullOrEmpty(x.Query.QueryAlias) ? "" : " AS " + x.Query.QueryAlias;
 
             return Wrap(x.Column) + " " + x.Operator + " (" + select + ")" + alias;
-
         }
 
         protected virtual string CompileBasicCondition<T>(BasicCondition<T> x)
@@ -77,7 +75,6 @@ namespace SqlKata.Compilers
 
             if (new[] { "starts", "ends", "contains", "like" }.Contains(x.Operator))
             {
-
                 method = "LIKE";
 
                 if (x.Operator == "starts")
@@ -149,7 +146,6 @@ namespace SqlKata.Compilers
 
         protected virtual string CompileInQueryCondition(InQueryCondition item)
         {
-
             var compiled = CompileQuery(item.Query);
 
             var inOperator = item.IsNot ? "NOT IN" : "IN";
@@ -168,6 +164,5 @@ namespace SqlKata.Compilers
             var op = item.IsNot ? "NOT EXISTS" : "EXISTS";
             return op + " (" + CompileQuery(item.Query) + ")";
         }
-
     }
 }

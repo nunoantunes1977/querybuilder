@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using SqlKata.Compilers;
 
 namespace SqlKata
 {
@@ -56,15 +53,21 @@ namespace SqlKata
         /// <param name="table"></param>
         /// <returns></returns>
         public Join JoinWith(string table) => From(table);
+
         public Join JoinWith(Query query) => From(query);
+
         public Join JoinWith(Func<Query, Query> callback) => From(callback);
+
         public Join JoinWith(Raw expression) => From(expression);
 
-
         public Join AsInner() => AsType("inner");
+
         public Join AsOuter() => AsType("outer");
+
         public Join AsLeft() => AsType("left");
+
         public Join AsRight() => AsType("right");
+
         public Join AsCross() => AsType("cross");
 
         public Join On(string first, string second, string op = "=")
@@ -77,7 +80,6 @@ namespace SqlKata
                 IsOr = getOr(),
                 IsNot = getNot()
             });
-
         }
 
         public Join OrOn(string first, string second, string op = "=")

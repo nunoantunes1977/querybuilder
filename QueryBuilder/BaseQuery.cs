@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SqlKata.Compilers;
 
 namespace SqlKata
 {
@@ -37,14 +36,14 @@ namespace SqlKata
             return bindingOrder.SelectMany(x => Get(x, engine)).ToList();
         }
 
-        public virtual List<object> GetBindings(string engine)
+        public virtual List<object> GetBindings(string engine, int engineVersion)
         {
             var result = new List<object>();
 
             foreach (var item in bindingOrder)
             {
                 var bindings = Get(item, engine)
-                    .SelectMany(clause => clause.GetBindings(engine))
+                    .SelectMany(clause => clause.GetBindings(engine, engineVersion))
                     .Where(x => x != null);
 
                 result.AddRange(bindings);
@@ -231,7 +230,7 @@ namespace SqlKata
         /// <summary>
         /// Set the next "not" operator for the "where" clause.
         /// </summary>
-        /// <returns></returns>        
+        /// <returns></returns>
         protected Q Not(bool flag)
         {
             notFlag = flag;
@@ -314,6 +313,5 @@ namespace SqlKata
 
             return From(callback.Invoke(query), alias);
         }
-
     }
 }

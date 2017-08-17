@@ -7,7 +7,6 @@ namespace SqlKata.Compilers
 {
     public partial class Compiler : AbstractCompiler
     {
-
         public Compiler() : base()
         {
             Inflector = new Inflector();
@@ -46,7 +45,6 @@ namespace SqlKata.Compilers
             }
 
             return Wrap((column as Column).Name);
-
         }
 
         public SqlResult Compile(Query query)
@@ -79,7 +77,7 @@ namespace SqlKata.Compilers
 
             // filter out foreign clauses so we get the bindings
             // just for the current engine
-            var bindings = query.GetBindings(EngineCode);
+            var bindings = query.GetBindings(EngineCode, EngineVersion);
 
             sql = OnAfterCompile(sql, bindings);
             return new SqlResult(sql, bindings);
@@ -123,7 +121,6 @@ namespace SqlKata.Compilers
             return "WITH " + string.Join(", ", sql) + " ";
         }
 
-
         public virtual string CompileSelect(Query query)
         {
             query = OnBeforeSelect(query);
@@ -164,7 +161,6 @@ namespace SqlKata.Compilers
 
             var insert = query.GetOne<AbstractInsertClause>("insert", EngineCode);
 
-
             if (insert is InsertClause)
             {
                 var clause = insert as InsertClause;
@@ -187,9 +183,7 @@ namespace SqlKata.Compilers
                 return "INSERT INTO " + CompileTableExpression(from)
                 + " " + columns + CompileSelect(clause.Query);
             }
-
         }
-
 
         protected virtual string CompileUpdate(Query query)
         {
@@ -276,7 +270,6 @@ namespace SqlKata.Compilers
             return result;
         }
 
-
         protected virtual string CompileColumns(Query query)
         {
             // If the query is actually performing an aggregating select, we will let that
@@ -303,7 +296,6 @@ namespace SqlKata.Compilers
 
         protected virtual string CompileAggregate(Query query)
         {
-
             if (!query.Has("aggregate", EngineCode))
             {
                 return null;
@@ -403,7 +395,6 @@ namespace SqlKata.Compilers
 
         protected virtual string CompileJoin(Join join, bool isNested = false)
         {
-
             var from = join.GetOne<AbstractFrom>("from", EngineCode);
             var conditions = join.Get<AbstractCondition>("where", EngineCode);
 
@@ -468,7 +459,6 @@ namespace SqlKata.Compilers
 
             var columns = query.Get<AbstractOrderBy>("order", EngineCode).Select(x =>
             {
-
                 if (x is RawOrderBy)
                 {
                     return WrapIdentifiers((x as RawOrderBy).Expression);
@@ -584,7 +574,6 @@ namespace SqlKata.Compilers
 
         protected string DynamicCompile(string name, AbstractClause clause)
         {
-
             MethodInfo methodInfo = this.GetType()
                 .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -620,7 +609,6 @@ namespace SqlKata.Compilers
             {
                 yield break;
             }
-
 
             var from = query.GetOne<AbstractFrom>("from", EngineCode);
 
@@ -664,11 +652,6 @@ namespace SqlKata.Compilers
                     ($"{source}.{sourceKey}", $"{target}.{targetKey}", "=")
                 };
             }
-
         }
-
     }
-
-
-
 }

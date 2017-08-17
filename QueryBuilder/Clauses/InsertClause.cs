@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 
 namespace SqlKata
 {
     public abstract class AbstractInsertClause : AbstractClause
     {
-
     }
 
     public class InsertClause : AbstractInsertClause
@@ -13,7 +11,7 @@ namespace SqlKata
         public List<string> Columns { get; set; }
         public List<object> Values { get; set; }
 
-        public override object[] GetBindings(string engine)
+        public override object[] GetBindings(string engine, int engineVersion)
         {
             return Values.ToArray();
         }
@@ -23,6 +21,7 @@ namespace SqlKata
             return new InsertClause
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Component = Component,
                 Columns = Columns,
                 Values = Values,
@@ -35,9 +34,9 @@ namespace SqlKata
         public List<string> Columns { get; set; }
         public Query Query { get; set; }
 
-        public override object[] GetBindings(string engine)
+        public override object[] GetBindings(string engine, int engineVersion)
         {
-            return Query.GetBindings(engine).ToArray();
+            return Query.GetBindings(engine, engineVersion).ToArray();
         }
 
         public override AbstractClause Clone()
@@ -45,11 +44,11 @@ namespace SqlKata
             return new InsertQueryClause
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Component = Component,
                 Columns = Columns,
                 Query = Query.Clone(),
             };
         }
     }
-
 }

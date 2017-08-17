@@ -1,20 +1,18 @@
 using System;
-using System.Collections.Generic;
 
 namespace SqlKata
 {
     public abstract class AbstractJoin : AbstractClause
     {
-
     }
 
     public class BaseJoin : AbstractJoin
     {
         public Join Join { get; set; }
 
-        public override object[] GetBindings(string engine)
+        public override object[] GetBindings(string engine, int engineVersion)
         {
-            return Join.GetBindings(engine).ToArray();
+            return Join.GetBindings(engine, engineVersion).ToArray();
         }
 
         public override AbstractClause Clone()
@@ -22,6 +20,7 @@ namespace SqlKata
             return new BaseJoin
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Join = Join.Clone(),
                 Component = Component,
             };
@@ -36,11 +35,13 @@ namespace SqlKata
         public string TargetKey { get; set; }
         public Func<string, string> SourceKeyGenerator { get; set; }
         public Func<string, string> TargetKeyGenerator { get; set; }
+
         public override AbstractClause Clone()
         {
             return new DeepJoin
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Component = Component,
                 Type = Type,
                 Expression = Expression,
@@ -51,5 +52,4 @@ namespace SqlKata
             };
         }
     }
-
 }

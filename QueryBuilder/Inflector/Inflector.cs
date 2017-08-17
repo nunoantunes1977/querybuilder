@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace SqlKata
 {
     /// <summary>
-    /// An inflector class based on 
+    /// An inflector class based on
     /// https://github.com/srkirkland/Inflector
     /// </summary>
     public class Inflector
@@ -76,7 +76,7 @@ namespace SqlKata
             AddUncountable("aircraft");
         }
 
-        #endregion
+        #endregion Default Rules
 
         private class Rule
         {
@@ -222,15 +222,17 @@ namespace SqlKata
             {
                 case 1:
                     return numberString + "st";
+
                 case 2:
                     return numberString + "nd";
+
                 case 3:
                     return numberString + "rd";
+
                 default:
                     return numberString + "th";
             }
         }
-
 
         public string Dasherize(string underscoredWord)
         {

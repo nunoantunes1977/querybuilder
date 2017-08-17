@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,7 +17,8 @@ namespace SqlKata
         public string Column { get; set; }
         public string Operator { get; set; }
         public virtual T Value { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
             return new object[] { Value };
         }
@@ -28,6 +28,7 @@ namespace SqlKata
             return new BasicCondition<T>
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Column = Column,
                 Operator = Operator,
                 Value = Value,
@@ -41,11 +42,13 @@ namespace SqlKata
     public class BasicStringCondition : BasicCondition<string>
     {
         public bool CaseSensitive { get; set; } = false;
+
         public override AbstractClause Clone()
         {
             return new BasicStringCondition
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Column = Column,
                 Operator = Operator,
                 Value = Value,
@@ -71,6 +74,7 @@ namespace SqlKata
             return new TwoColumnsCondition
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 First = First,
                 Operator = Operator,
                 Second = Second,
@@ -82,16 +86,17 @@ namespace SqlKata
     }
 
     /// <summary>
-    /// Represents a comparison between a column and a full "subquery". 
+    /// Represents a comparison between a column and a full "subquery".
     /// </summary>
     public class QueryCondition<T> : AbstractCondition where T : BaseQuery<T>
     {
         public string Column { get; set; }
         public string Operator { get; set; }
         public Query Query { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
-            return Query.GetBindings(engine).ToArray();
+            return Query.GetBindings(engine, engineVersion).ToArray();
         }
 
         public override AbstractClause Clone()
@@ -99,6 +104,7 @@ namespace SqlKata
             return new QueryCondition<T>
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Column = Column,
                 Operator = Operator,
                 Query = Query.Clone(),
@@ -116,7 +122,8 @@ namespace SqlKata
     {
         public string Column { get; set; }
         public IEnumerable<T> Values { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
             return Values.Select(x => x).Cast<object>().ToArray();
         }
@@ -126,6 +133,7 @@ namespace SqlKata
             return new InCondition<T>
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Column = Column,
                 Values = new List<T>(Values),
                 IsOr = IsOr,
@@ -133,7 +141,6 @@ namespace SqlKata
                 Component = Component,
             };
         }
-
     }
 
     /// <summary>
@@ -143,15 +150,18 @@ namespace SqlKata
     {
         public Query Query { get; set; }
         public string Column { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
-            return Query.GetBindings(engine).ToArray();
+            return Query.GetBindings(engine, engineVersion).ToArray();
         }
+
         public override AbstractClause Clone()
         {
             return new InQueryCondition
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Column = Column,
                 Query = Query.Clone(),
                 IsOr = IsOr,
@@ -169,7 +179,8 @@ namespace SqlKata
         public string Column { get; set; }
         public T Higher { get; set; }
         public T Lower { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
             return new object[] { Lower, Higher };
         }
@@ -179,6 +190,7 @@ namespace SqlKata
             return new BetweenCondition<T>
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Column = Column,
                 Higher = Higher,
                 Lower = Lower,
@@ -201,6 +213,7 @@ namespace SqlKata
             return new NullCondition
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Column = Column,
                 IsOr = IsOr,
                 IsNot = IsNot,
@@ -216,9 +229,10 @@ namespace SqlKata
     public class NestedCondition<T> : AbstractCondition where T : BaseQuery<T>
     {
         public T Query { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
-            return Query.GetBindings(engine).ToArray();
+            return Query.GetBindings(engine, engineVersion).ToArray();
         }
 
         public override AbstractClause Clone()
@@ -226,6 +240,7 @@ namespace SqlKata
             return new NestedCondition<T>
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Query = Query.Clone(),
                 IsOr = IsOr,
                 IsNot = IsNot,
@@ -240,9 +255,10 @@ namespace SqlKata
     public class ExistsCondition<T> : AbstractCondition where T : BaseQuery<T>
     {
         public T Query { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
-            return Query.GetBindings(engine).ToArray();
+            return Query.GetBindings(engine, engineVersion).ToArray();
         }
 
         public override AbstractClause Clone()
@@ -250,6 +266,7 @@ namespace SqlKata
             return new ExistsCondition<T>
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Query = Query.Clone(),
                 IsOr = IsOr,
                 IsNot = IsNot,
@@ -263,7 +280,8 @@ namespace SqlKata
         public string Expression { get; set; }
         protected object[] _bindings;
         public object[] Bindings { set => _bindings = value; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
             return _bindings;
         }
@@ -273,6 +291,7 @@ namespace SqlKata
             return new RawCondition
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Expression = Expression,
                 _bindings = _bindings,
                 IsOr = IsOr,
@@ -281,5 +300,4 @@ namespace SqlKata
             };
         }
     }
-
 }

@@ -4,7 +4,6 @@ namespace SqlKata
 {
     public partial class Query
     {
-
         public Query Select(params string[] columns)
         {
             foreach (var column in columns)
@@ -24,7 +23,6 @@ namespace SqlKata
         /// <returns></returns>
         public Query SelectRaw(string expression, params object[] bindings)
         {
-
             Add("select", new RawColumn
             {
                 Expression = expression,
@@ -33,7 +31,6 @@ namespace SqlKata
 
             return this;
         }
-
 
         public Query Select(params object[] columns)
         {

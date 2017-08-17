@@ -6,8 +6,6 @@ namespace SqlKata
 {
     public partial class Query
     {
-
-
         public Query Update(IEnumerable<string> columns, IEnumerable<object> values)
         {
             if (columns.Count() != values.Count())
@@ -28,7 +26,6 @@ namespace SqlKata
 
         public Query Update(Dictionary<string, object> data)
         {
-
             Method = "update";
 
             Clear("update").Add("update", new InsertClause
@@ -39,6 +36,5 @@ namespace SqlKata
 
             return this;
         }
-
     }
 }

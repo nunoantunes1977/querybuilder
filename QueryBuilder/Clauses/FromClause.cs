@@ -1,11 +1,11 @@
 using System;
-using System.Collections.Generic;
 
 namespace SqlKata
 {
     public abstract class AbstractFrom : AbstractClause
     {
         protected string _alias;
+
         /// <summary>
         /// Try to extract the Alias for the current clause.
         /// </summary>
@@ -52,9 +52,10 @@ namespace SqlKata
     public class QueryFromClause : AbstractFrom
     {
         public Query Query { get; set; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
-            return Query.GetBindings(engine).ToArray();
+            return Query.GetBindings(engine, engineVersion).ToArray();
         }
 
         public override string Alias
@@ -70,6 +71,7 @@ namespace SqlKata
             return new QueryFromClause
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Alias = Alias,
                 Query = Query.Clone(),
                 Component = Component,
@@ -82,7 +84,8 @@ namespace SqlKata
         public string Expression { get; set; }
         protected object[] _bindings;
         public object[] Bindings { set => _bindings = value; }
-        public override object[] GetBindings(string engine)
+
+        public override object[] GetBindings(string engine, int engineVersion)
         {
             return _bindings;
         }
@@ -92,6 +95,7 @@ namespace SqlKata
             return new RawFromClause
             {
                 Engine = Engine,
+                EngineVersion = EngineVersion,
                 Alias = Alias,
                 Expression = Expression,
                 _bindings = _bindings,
@@ -99,5 +103,4 @@ namespace SqlKata
             };
         }
     }
-
 }

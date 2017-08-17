@@ -1,14 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SqlKata.Compilers
 {
     public class SqlServerCompiler : Compiler
     {
-        public SqlServerCompiler()
+        public SqlServerCompiler(SqlServerVersion engineVersion = SqlServerVersion.SQL2008)
         {
             EngineCode = "sqlsrv";
+            EngineVersion = (int)engineVersion;
         }
 
         protected override string OpeningIdentifier()
@@ -25,21 +25,18 @@ namespace SqlKata.Compilers
         {
             var limitOffset = query.GetOne<LimitOffset>("limit", EngineCode);
 
-            if (limitOffset == null || !limitOffset.HasOffset())
+            if (limitOffset == null || !limitOffset.HasOffset() || EngineVersion >= (int)SqlServerVersion.SQL2012)
             {
                 return query;
             }
 
-
             // Surround the original query with a parent query, then restrict the result to the offset provided, see more at https://docs.microsoft.com/en-us/sql/t-sql/functions/row-number-transact-sql
-
 
             var rowNumberColName = "row_num";
 
             var orderStatement = CompileOrders(query) ?? "ORDER BY (SELECT 0)";
 
             var orderClause = query.Get("order", EngineCode);
-
 
             // get a clone without the limit and order
             query.Clear("order");
@@ -66,10 +63,11 @@ namespace SqlKata.Compilers
             }
 
             // Add the row_number select, and put back the bindings here if any
+            // Add alias to subquery
             subquery.SelectRaw(
                     $"ROW_NUMBER() OVER ({orderStatement}) AS {WrapValue(rowNumberColName)}",
-                    orderClause.SelectMany(x => x.GetBindings(EngineCode))
-            );
+                    orderClause.SelectMany(x => x.GetBindings(EngineCode, EngineVersion))
+            ).As("q");
 
             query.From(subquery);
 
@@ -89,7 +87,6 @@ namespace SqlKata.Compilers
             limitOffset.Clear();
 
             return query;
-
         }
 
         protected override string CompileColumns(Query query)
@@ -103,10 +100,11 @@ namespace SqlKata.Compilers
 
             if (limitOffset != null && limitOffset.HasLimit() && !limitOffset.HasOffset())
             {
-                // Add a fake raw select to simulate the top bindings 
+                // Add a fake raw select to simulate the top bindings
                 query.Clauses.Insert(0, new RawColumn
                 {
                     Engine = EngineCode,
+                    EngineVersion = EngineVersion,
                     Component = "select",
                     Expression = "",
                     Bindings = new object[] { limitOffset.Limit }
@@ -127,6 +125,19 @@ namespace SqlKata.Compilers
 
         public override string CompileOffset(Query query)
         {
+            var limitOffset = query.GetOne<LimitOffset>("limit", EngineCode);
+
+            if (limitOffset != null && limitOffset.HasOffset() && EngineVersion >= (int)SqlServerVersion.SQL2012)
+            {
+                if (limitOffset.HasLimit() && limitOffset.HasOffset())
+                {
+                    return "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+                }
+                else if (!limitOffset.HasLimit() && limitOffset.HasOffset())
+                {
+                    return "OFFSET ? ROWS";
+                }
+            }
 
             return "";
         }
@@ -137,9 +148,20 @@ namespace SqlKata.Compilers
         }
     }
 
+    public enum SqlServerVersion
+    {
+        NotApplicable = 0,
+        SQL2008 = 100,
+        SQL2008R2 = 105,
+        SQL2012 = 110,
+        SQL2014 = 120,
+        SQL2016 = 130
+    }
+
     public static class SqlServerCompilerExtensions
     {
         public static string ENGINE_CODE = "sqlsrv";
+
         public static Query ForSqlServer(this Query src, Func<Query, Query> fn)
         {
             return src.For(SqlServerCompilerExtensions.ENGINE_CODE, fn);

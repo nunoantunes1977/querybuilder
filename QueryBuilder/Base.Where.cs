@@ -8,7 +8,6 @@ namespace SqlKata
     {
         public Q Where<T>(string column, string op, T value)
         {
-
             // If the value is "null", we will just assume the developer wants to add a
             // where null clause to the query. So, we will allow a short-cut here to
             // that method for convenience so the developer doesn't have to check.
@@ -190,6 +189,7 @@ namespace SqlKata
         {
             return Or().Where(column, op, value);
         }
+
         public Q OrWhere(string column, object value)
         {
             return OrWhere(column, "=", value);
@@ -199,10 +199,12 @@ namespace SqlKata
         {
             return Or().Where(callback);
         }
+
         public Q OrWhereNot(string column, string op, object value)
         {
             return this.Or().Not(true).Where(column, op, value);
         }
+
         public Q OrWhereNot(string column, object value)
         {
             return OrWhereNot(column, "=", value);
@@ -277,6 +279,7 @@ namespace SqlKata
         {
             return Or().Not(true).WhereLike(column, value, caseSensitive);
         }
+
         public Q WhereStarts(string column, string value, bool caseSensitive = false)
         {
             return Add("where", new BasicStringCondition
@@ -362,10 +365,12 @@ namespace SqlKata
         {
             return Or().WhereBetween(column, lower, higher);
         }
+
         public Q WhereNotBetween<T>(string column, T lower, T higher)
         {
             return Not(true).WhereBetween(column, lower, higher);
         }
+
         public Q OrWhereNotBetween<T>(string column, T lower, T higher)
         {
             return Or().Not(true).WhereBetween(column, lower, higher);
@@ -395,8 +400,6 @@ namespace SqlKata
                 IsNot = getNot(),
                 Values = values.Distinct().ToList()
             });
-
-
         }
 
         public Q OrWhereIn<T>(string column, IEnumerable<T> values)
@@ -414,7 +417,6 @@ namespace SqlKata
             return Or().Not(true).WhereIn(column, values);
         }
 
-
         public Q WhereIn(string column, Query query)
         {
             return Add("where", new InQueryCondition
@@ -425,6 +427,7 @@ namespace SqlKata
                 Query = query.SetEngineScope(EngineScope)
             });
         }
+
         public Q WhereIn(string column, Func<Query, Query> callback)
         {
             var query = callback.Invoke(new Query());
@@ -441,6 +444,7 @@ namespace SqlKata
         {
             return Or().WhereIn(column, callback);
         }
+
         public Q WhereNotIn(string column, Query query)
         {
             return Not(true).WhereIn(column, query);
@@ -460,7 +464,6 @@ namespace SqlKata
         {
             return Or().Not(true).WhereIn(column, callback);
         }
-
 
         /// <summary>
         /// Perform a sub query where clause
@@ -492,6 +495,7 @@ namespace SqlKata
         {
             return Or().Where(column, op, query);
         }
+
         public Q OrWhere(string column, string op, Func<Query, Query> callback)
         {
             return Or().Where(column, op, callback);
@@ -511,6 +515,7 @@ namespace SqlKata
                 IsOr = getOr(),
             });
         }
+
         public Q WhereExists(Func<Query, Query> callback)
         {
             var childQuery = new Query().SetParent(this);
@@ -531,18 +536,20 @@ namespace SqlKata
         {
             return Or().WhereExists(query);
         }
+
         public Q OrWhereExists(Func<Query, Query> callback)
         {
             return Or().WhereExists(callback);
         }
+
         public Q OrWhereNotExists(Query query)
         {
             return Or().Not(true).WhereExists(query);
         }
+
         public Q OrWhereNotExists(Func<Query, Query> callback)
         {
             return Or().Not(true).WhereExists(callback);
         }
-        
     }
 }

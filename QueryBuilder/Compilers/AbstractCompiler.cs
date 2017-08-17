@@ -7,9 +7,12 @@ namespace SqlKata.Compilers
     public abstract class AbstractCompiler
     {
         public string EngineCode;
+        public int EngineVersion;
+
         public Inflector Inflector { get; protected set; }
         public string TablePrefix { get; set; } = "";
         public bool IsDebug = false;
+
         protected string separator
         {
             get
@@ -19,6 +22,7 @@ namespace SqlKata.Compilers
         }
 
         protected abstract string OpeningIdentifier();
+
         protected abstract string ClosingIdentifier();
 
         protected string JoinComponents(List<string> components, string section = null)
@@ -66,11 +70,10 @@ namespace SqlKata.Compilers
                     }
 
                     return WrapValue(x);
-
                 }));
             }
 
-            // If we reach here then the value does not contain an "AS" alias 
+            // If we reach here then the value does not contain an "AS" alias
             // nor dot "." expression, so wrap it as regular value.
             return WrapValue(value);
         }
