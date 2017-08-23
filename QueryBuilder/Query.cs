@@ -146,9 +146,7 @@ namespace SqlKata
 
         public Query Limit(int value)
         {
-            var clause = GetOne("limit", EngineScope) as LimitOffset;
-
-            if (clause != null)
+            if (GetOne("limit", EngineScope) is LimitOffset clause)
             {
                 clause.Limit = value;
                 return this;
@@ -162,9 +160,7 @@ namespace SqlKata
 
         public Query Offset(int value)
         {
-            var clause = GetOne("limit", EngineScope) as LimitOffset;
-
-            if (clause != null)
+            if (GetOne("limit", EngineScope) is LimitOffset clause)
             {
                 clause.Offset = value;
                 return this;
@@ -209,7 +205,7 @@ namespace SqlKata
 
         public Query First()
         {
-            return this.Limit(1);
+            return Limit(1);
         }
 
         public Query Distinct()

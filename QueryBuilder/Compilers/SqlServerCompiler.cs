@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace SqlKata.Compilers
 {
-    public class SqlServerCompiler : Compiler
+    public partial class SqlServerCompiler : Compiler
     {
         public SqlServerCompiler(SqlServerVersion engineVersion = SqlServerVersion.SQL2008)
         {
@@ -164,7 +164,7 @@ namespace SqlKata.Compilers
 
         public static Query ForSqlServer(this Query src, Func<Query, Query> fn)
         {
-            return src.For(SqlServerCompilerExtensions.ENGINE_CODE, fn);
+            return src.For(ENGINE_CODE, fn);
         }
     }
 }

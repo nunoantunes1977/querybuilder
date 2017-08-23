@@ -248,18 +248,18 @@ namespace SqlKata.Compilers
         {
             var result = (new List<string>
             {
-                this.CompileAggregate(query),
-                this.CompileColumns(query),
-                this.CompileFrom(query),
-                this.CompileJoins(query),
-                this.CompileWheres(query),
-                this.CompileGroups(query),
-                this.CompileHavings(query),
-                this.CompileOrders(query),
-                this.CompileLimit(query),
-                this.CompileOffset(query),
-                this.CompileUnions(query),
-                this.CompileLock(query),
+                CompileAggregate(query),
+                CompileColumns(query),
+                CompileFrom(query),
+                CompileJoins(query),
+                CompileWheres(query),
+                CompileGroups(query),
+                CompileHavings(query),
+                CompileOrders(query),
+                CompileLimit(query),
+                CompileOffset(query),
+                CompileUnions(query),
+                CompileLock(query),
             })
             .ToList()
             .Where(x => x != null)
@@ -503,9 +503,7 @@ namespace SqlKata.Compilers
 
         public virtual string CompileLimit(Query query)
         {
-            var limitOffset = query.GetOne("limit", EngineCode) as LimitOffset;
-
-            if (limitOffset != null && limitOffset.HasLimit())
+            if (query.GetOne("limit", EngineCode) is LimitOffset limitOffset && limitOffset.HasLimit())
             {
                 return "LIMIT ?";
             }
@@ -515,9 +513,7 @@ namespace SqlKata.Compilers
 
         public virtual string CompileOffset(Query query)
         {
-            var limitOffset = query.GetOne("limit", EngineCode) as LimitOffset;
-
-            if (limitOffset != null && limitOffset.HasOffset())
+            if (query.GetOne("limit", EngineCode) is LimitOffset limitOffset && limitOffset.HasOffset())
             {
                 return "OFFSET ?";
             }

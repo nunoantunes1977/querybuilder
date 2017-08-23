@@ -32,6 +32,16 @@ namespace SqlKata
             return this;
         }
 
+        public Query SelectRawIf(bool condition, string expression, params object[] bindings)
+        {
+            if (condition)
+            {
+                return SelectRaw(expression, bindings);
+            }
+
+            return this;
+        }
+
         public Query Select(params object[] columns)
         {
             foreach (var item in columns)

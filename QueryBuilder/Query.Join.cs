@@ -152,6 +152,36 @@ namespace SqlKata
             return Join(query, onCallback, "left");
         }
 
+        public Query LeftJoinIf(bool condition, string table, string first, string second, string op = "=")
+        {
+            if (condition)
+            {
+                return LeftJoin(table, first, second, op);
+            }
+
+            return this;
+        }
+
+        public Query LeftJoinIf(bool condition, string table, Func<Join, Join> onCallback)
+        {
+            if (condition)
+            {
+                return LeftJoin(table, onCallback);
+            }
+
+            return this;
+        }
+
+        public Query LeftJoinIf(bool condition, Query query, Func<Join, Join> onCallback)
+        {
+            if (condition)
+            {
+                return LeftJoin(query, onCallback);
+            }
+
+            return this;
+        }
+
         public Query RightJoin(string table, string first, string second, string op = "=")
         {
             return Join(table, first, second, op, "right");

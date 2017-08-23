@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace SqlKata
 {
@@ -294,6 +295,50 @@ namespace SqlKata
                 EngineVersion = EngineVersion,
                 Expression = Expression,
                 _bindings = _bindings,
+                IsOr = IsOr,
+                IsNot = IsNot,
+                Component = Component,
+            };
+        }
+    }
+
+    public class FtsCondition : AbstractCondition
+    {
+        public string Column { get; set; }
+        public string SearchTerm { get; set; }
+        public string SearchCondition { get; set; }
+
+        public override object[] GetBindings(string engine, int engineVersion)
+        {
+            StringBuilder sbSearchTerm = new StringBuilder();
+
+            List<string> terms = SearchTerm.Trim().Split(' ').ToList();
+            terms.RemoveAll(element => System.String.IsNullOrEmpty(element));
+
+            string[] parsedTerms = terms.ToArray();
+
+            for (int i = 0; i < parsedTerms.Length; i++)
+            {
+                if (i > 0)
+                {
+                    sbSearchTerm.Append($" {SearchCondition} ");
+                }
+
+                sbSearchTerm.Append("\"").Append(terms[i]).Append("*\"");
+            }
+
+            return new object[] { sbSearchTerm.ToString() };
+        }
+
+        public override AbstractClause Clone()
+        {
+            return new FtsCondition
+            {
+                Engine = Engine,
+                EngineVersion = EngineVersion,
+                Column = Column,
+                SearchTerm = SearchTerm,
+                SearchCondition = SearchCondition,
                 IsOr = IsOr,
                 IsNot = IsNot,
                 Component = Component,

@@ -105,7 +105,7 @@ namespace SqlKata
             }
         }
 
-        public static string ReplaceAll(string subject, string match, Func<int, string> callback)
+        public static string ReplaceAll(string subject, string match, Func<int, string> callback, bool surroundWithQuotes = false)
         {
             if (string.IsNullOrWhiteSpace(subject))
             {
@@ -119,12 +119,20 @@ namespace SqlKata
                 return tokens[0];
             }
 
-            var newStr = new List<string>();
-            newStr.Add(tokens[0]);
+            var newStr = new List<string>
+            {
+                tokens[0]
+            };
 
             for (var i = 1; i < tokens.Count; i++)
             {
-                var replacement = callback.Invoke(i - 1);
+                var replacement = callback.Target is SqlResult ? ((SqlResult)callback.Target).RawBindings[i - 1] : callback.Invoke(i - 1);
+
+                if (surroundWithQuotes && !IsNumber(replacement))
+                {
+                    replacement = "'" + replacement + "'";
+                }
+
                 newStr.Add(replacement + tokens[i]);
             }
 

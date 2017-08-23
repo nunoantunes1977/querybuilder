@@ -26,7 +26,7 @@ namespace SqlKata.Compilers
 
         public static Query ForPostgres(this Query src, Func<Query, Query> fn)
         {
-            return src.For(PostgresCompilerExtensions.ENGINE_CODE, fn);
+            return src.For(ENGINE_CODE, fn);
         }
     }
 }

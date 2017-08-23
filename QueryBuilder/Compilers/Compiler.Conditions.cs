@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -163,6 +164,12 @@ namespace SqlKata.Compilers
         {
             var op = item.IsNot ? "NOT EXISTS" : "EXISTS";
             return op + " (" + CompileQuery(item.Query) + ")";
+        }
+
+        protected virtual string CompileFtsCondition(FtsCondition x)
+        {
+            // Implement the method in the specific compiler.
+            throw new NotImplementedException("Implement the method in the specific compiler.");
         }
     }
 }

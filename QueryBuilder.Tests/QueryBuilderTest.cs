@@ -133,6 +133,7 @@ namespace SqlKata.Tests
             Assert.Equal("SELECT * FROM \"streets\" INNER JOIN \"cities\" ON \"streets\".\"cityId\" = \"cities\".\"Id\" INNER JOIN \"countries\" ON \"streets\".\"countryId\" = \"countries\".\"Id\"", c[1]);
         }
 
+        //[Fact]
         public void CteAndBindings()
         {
             var query = new Query("Races")

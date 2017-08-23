@@ -402,6 +402,16 @@ namespace SqlKata
             });
         }
 
+        public Q WhereInIf<T>(bool condition, string column, IEnumerable<T> values)
+        {
+            if (condition)
+            {
+                return WhereIn(column, values);
+            }
+
+            return (Q)this;
+        }
+
         public Q OrWhereIn<T>(string column, IEnumerable<T> values)
         {
             return Or().WhereIn(column, values);
@@ -433,6 +443,18 @@ namespace SqlKata
             var query = callback.Invoke(new Query());
 
             return WhereIn(column, query);
+        }
+
+        public Q WhereInIf(bool condition, string column, Func<Query, Query> callback)
+        {
+            if (condition)
+            {
+                var query = callback.Invoke(new Query());
+
+                return WhereIn(column, query);
+            }
+
+            return (Q)this;
         }
 
         public Q OrWhereIn(string column, Query query)

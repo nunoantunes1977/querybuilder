@@ -38,7 +38,7 @@ namespace SqlKata
 
         public override string ToString()
         {
-            return Helper.ReplaceAll(RawSql, "?", i => RawBindings[i] + "");
+            return Helper.ReplaceAll(RawSql, "?", i => RawBindings[i] + "", true);
         }
     }
 }

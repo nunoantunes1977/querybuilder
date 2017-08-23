@@ -13,7 +13,7 @@ namespace SqlKata.Compilers
         public string TablePrefix { get; set; } = "";
         public bool IsDebug = false;
 
-        protected string separator
+        protected string Separator
         {
             get
             {
@@ -27,7 +27,7 @@ namespace SqlKata.Compilers
 
         protected string JoinComponents(List<string> components, string section = null)
         {
-            return string.Join(separator, components);
+            return string.Join(Separator, components);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace SqlKata.Compilers
         /// <returns></returns>
         public string WrapTable(string table)
         {
-            return Wrap(this.TablePrefix + table, true);
+            return Wrap(TablePrefix + table, true);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace SqlKata.Compilers
 
                 if (prefixAlias)
                 {
-                    segments[2] = this.TablePrefix + segments[2];
+                    segments[2] = TablePrefix + segments[2];
                 }
 
                 return Wrap(segments[0]) + " AS " + WrapValue(segments[2]);
@@ -92,8 +92,8 @@ namespace SqlKata.Compilers
         {
             if (value == "*") return value;
 
-            var opening = this.OpeningIdentifier();
-            var closing = this.ClosingIdentifier();
+            var opening = OpeningIdentifier();
+            var closing = ClosingIdentifier();
 
             return opening + value.Replace(closing, closing + closing) + closing;
         }
@@ -131,8 +131,8 @@ namespace SqlKata.Compilers
         public string WrapIdentifiers(string input)
         {
             return input
-                .Replace("{", this.OpeningIdentifier())
-                .Replace("}", this.ClosingIdentifier());
+                .Replace("{", OpeningIdentifier())
+                .Replace("}", ClosingIdentifier());
         }
 
         public virtual string Singular(string value)
