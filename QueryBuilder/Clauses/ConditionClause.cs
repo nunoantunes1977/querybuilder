@@ -317,14 +317,22 @@ namespace SqlKata
 
             string[] parsedTerms = terms.ToArray();
 
-            for (int i = 0; i < parsedTerms.Length; i++)
+            switch (engine)
             {
-                if (i > 0)
-                {
-                    sbSearchTerm.Append($" {SearchCondition} ");
-                }
+                case "sqlsrv":
+                    for (int i = 0; i < parsedTerms.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sbSearchTerm.Append($" {SearchCondition} ");
+                        }
 
-                sbSearchTerm.Append("\"").Append(terms[i]).Append("*\"");
+                        sbSearchTerm.Append("\"").Append(terms[i]).Append("*\"");
+                    }
+                    break;
+
+                default:
+                    break;
             }
 
             return new object[] { sbSearchTerm.ToString() };

@@ -136,6 +136,16 @@ namespace SqlKata
             });
         }
 
+        public Q WhereRawIf(bool condition, string sql, params object[] bindings)
+        {
+            if (condition)
+            {
+                WhereRaw(sql, bindings);
+            }
+
+            return (Q)this;
+        }
+
         public Q OrWhereRaw(string sql, params object[] bindings)
         {
             return Or().WhereRaw(sql, bindings);
@@ -168,6 +178,16 @@ namespace SqlKata
                 IsNot = getNot(),
                 IsOr = getOr(),
             });
+        }
+
+        public Q WhereIf(bool condition, Func<Q, Q> callback)
+        {
+            if (condition)
+            {
+                return Where(callback);
+            }
+
+            return (Q)this;
         }
 
         public Q WhereNot(string column, string op, object value)
@@ -250,6 +270,16 @@ namespace SqlKata
         public Q OrWhereNull(string column)
         {
             return this.Or().WhereNull(column);
+        }
+
+        public Q OrWhereNullIf(bool condition, string column)
+        {
+            if (condition)
+            {
+                return Or().WhereNull(column);
+            }
+
+            return (Q)this;
         }
 
         public Q OrWhereNotNull(string column)
@@ -347,6 +377,16 @@ namespace SqlKata
         public Q OrWhereNotContains(string column, string value, bool caseSensitive = false)
         {
             return Or().Not(true).WhereContains(column, value, caseSensitive);
+        }
+
+        public Q WhereContainsIf(bool condition, string column, string value, bool caseSensitive = false)
+        {
+            if (condition)
+            {
+                return WhereContains(column, value, caseSensitive);
+            }
+
+            return (Q)this;
         }
 
         public Q WhereBetween<T>(string column, T lower, T higher)
