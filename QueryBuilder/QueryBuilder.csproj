@@ -9,6 +9,7 @@
     <Authors>Ahmad Moussawi</Authors>
     <Copyright>Copyright (c) 2017 Ahmad Moussawi</Copyright>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
@@ -21,6 +22,6 @@
 
   <ItemGroup>
     <PackageReference Update="NuGet.Build.Tasks.Pack" Version="4.3.0" />
-    <PackageReference Update="SourceLink.Create.GitHub" Version="2.1.2" />
+    <PackageReference Update="SourceLink.Create.GitHub" Version="2.2.0" />
   </ItemGroup>
 </Project>
