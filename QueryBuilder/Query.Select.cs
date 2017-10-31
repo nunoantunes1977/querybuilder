@@ -6,6 +6,8 @@ namespace SqlKata
     {
         public Query Select(params string[] columns)
         {
+            Method = "select";
+
             foreach (var column in columns)
             {
                 Add("select", new Column
@@ -23,6 +25,8 @@ namespace SqlKata
         /// <returns></returns>
         public Query SelectRaw(string expression, params object[] bindings)
         {
+            Method = "select";
+
             Add("select", new RawColumn
             {
                 Expression = expression,
@@ -65,6 +69,8 @@ namespace SqlKata
 
         public Query Select(Query query, string alias)
         {
+            Method = "select";
+
             Add("select", new QueryColumn
             {
                 Query = query.As(alias).SetEngineScope(EngineScope),

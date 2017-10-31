@@ -16,6 +16,11 @@ namespace SqlKata
                 return Not(op != "=").WhereNull(column);
             }
 
+            if (value is Query)
+            {
+                return Where(column, op, value as Query);
+            }
+
             return Add("where", new BasicCondition<T>
             {
                 Column = column,
@@ -572,7 +577,7 @@ namespace SqlKata
 
             return Add("where", new ExistsCondition<Query>
             {
-                Query = query.SetEngineScope(EngineScope),
+                Query = query.Clear("select").SelectRaw("1").Limit(1).SetEngineScope(EngineScope),
                 IsNot = getNot(),
                 IsOr = getOr(),
             });
@@ -613,5 +618,6 @@ namespace SqlKata
         {
             return Or().Not(true).WhereExists(callback);
         }
+
     }
 }
